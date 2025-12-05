@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadruple Helix Innovációs Ökoszisztéma Kérdőív</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .section-card {
+            transition: all 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .question-card {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .question-card:hover {
+            border-left-color: #3b82f6;
+            background-color: #f9fafb;
+        }
+        .sector-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .sector-university { background-color: #dbeafe; color: #1e40af; }
+        .sector-industry { background-color: #fef3c7; color: #92400e; }
+        .sector-government { background-color: #dcfce7; color: #166534; }
+        .sector-society { background-color: #fce7f3; color: #9f1239; }
+        .sector-qh { background-color: #e9d5ff; color: #6b21a8; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- Header -->
+        <header class="text-center mb-12 fade-in">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <div class="flex items-center justify-center mb-4">
+                    <i class="fas fa-network-wired text-5xl text-indigo-600"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">
+                    Quadruple Helix Innovációs Ökoszisztéma Kérdőív
+                </h1>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Digitális adatgyűjtés az egyetem, ipar, kormányzat és társadalom közötti innovációs kapcsolatok feltérképezéséhez
+                </p>
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div id="progress-container" class="mb-8 bg-white rounded-xl shadow-lg p-6 hidden">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-semibold text-gray-700">Kitöltési előrehaladás</span>
+                <span id="progress-text" class="text-sm font-bold text-indigo-600">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="progress-bar" class="progress-bar bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full" style="width: 0%"></div>
+            </div>
+            <div class="mt-3 text-xs text-gray-500 text-center">
+                <span id="answered-count">0</span> / <span id="total-count">0</span> kérdés megválaszolva
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="content-area">
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-info-circle text-indigo-600 mr-2"></i>
+                        Üdvözöljük!
+                    </h2>
+                    <p class="text-gray-700 mb-4">
+                        Ez a kérdőív az innovációs ökoszisztéma kulcsszereplőivel készített félig strukturált interjúk 
+                        digitális adatgyűjtési eszköze. A kérdések a Quadruple Helix modell négy pillére mentén strukturáltak.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <i class="fas fa-university text-2xl text-blue-600 mb-2"></i>
+                            <h3 class="font-semibold text-blue-900 mb-1">Egyetem</h3>
+                            <p class="text-sm text-blue-700">Tudástermelés és -transzfer</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <i class="fas fa-industry text-2xl text-yellow-600 mb-2"></i>
+                            <h3 class="font-semibold text-yellow-900 mb-1">Ipar</h3>
+                            <p class="text-sm text-yellow-700">Innováció és piaci alkalmazás</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <i class="fas fa-landmark text-2xl text-green-600 mb-2"></i>
+                            <h3 class="font-semibold text-green-900 mb-1">Kormányzat</h3>
+                            <p class="text-sm text-green-700">Szabályozás és támogatás</p>
+                        </div>
+                        <div class="bg-pink-50 p-4 rounded-lg">
+                            <i class="fas fa-users text-2xl text-pink-600 mb-2"></i>
+                            <h3 class="font-semibold text-pink-900 mb-1">Társadalom</h3>
+                            <p class="text-sm text-pink-700">Társadalmi igények és elfogadottság</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6">
+                        <p class="text-sm text-indigo-900">
+                            <i class="fas fa-clock mr-2"></i>
+                            <strong>Becsült kitöltési idő:</strong> 60-90 perc a válaszadó kategóriájától függően
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Kérjük, válassza ki a kategóriáját:</h3>
+                    
+                    <div class="space-y-3">
+                        <button onclick="startSurvey('ST')" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-between">
+                            <span class="flex items-center">
+                                <i class="fas fa-rocket mr-3 text-xl"></i>
+                                Spinoff Alapító / Kutató
+                            </span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        
+                        <button onclick="startSurvey('C')" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-between">
+                            <span class="flex items-center">
+                                <i class="fas fa-building mr-3 text-xl"></i>
+                                Vállalati Partner
+                            </span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        
+                        <button onclick="startSurvey('TT')" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-between">
+                            <span class="flex items-center">
+                                <i class="fas fa-exchange-alt mr-3 text-xl"></i>
+                                Technológiatranszfer Szakember
+                            </span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">
+                        <i class="fas fa-shield-alt text-green-600 mr-2"></i>
+                        Adatvédelem és Etika
+                    </h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Válaszai bizalmasan kezelve</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>GDPR megfelelő adatkezelés</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Lehetőség anonim részvételre</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Bármikor megszakítható</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Survey Screen -->
+            <div id="survey-screen" class="hidden">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 id="section-title" class="text-2xl font-bold text-gray-800"></h2>
+                        <button onclick="showWelcome()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                            <i class="fas fa-times text-2xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="questions-container" class="space-y-6">
+                        <!-- Questions will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between items-center">
+                    <button onclick="previousSection()" id="prev-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Előző
+                    </button>
+                    
+                    <button onclick="nextSection()" id="next-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-300">
+                        Következő
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                    
+                    <button onclick="submitSurvey()" id="submit-btn" class="hidden bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-300">
+                        <i class="fas fa-check mr-2"></i>
+                        Beküldés
+                    </button>
+                </div>
+            </div>
+
+            <!-- Thank You Screen -->
+            <div id="thankyou-screen" class="hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-12 text-center">
+                    <div class="mb-6">
+                        <i class="fas fa-check-circle text-6xl text-green-500"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Köszönjük a részvételt!</h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Válaszai sikeresen rögzítésre kerültek. Hozzájárulása értékes segítséget nyújt az innovációs ökoszisztéma megértéséhez.
+                    </p>
+                    <div class="bg-indigo-50 rounded-lg p-6 mb-6">
+                        <p class="text-sm text-indigo-900">
+                            <i class="fas fa-download mr-2"></i>
+                            Válaszai JSON formátumban letöltésre kerültek az Ön számítógépére.
+                        </p>
+                    </div>
+                    <button onclick="location.reload()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300">
+                        <i class="fas fa-redo mr-2"></i>
+                        Új kérdőív indítása
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="survey-data.js"></script>
+    <script src="survey-app.js"></script>
+</body>
+</html>
