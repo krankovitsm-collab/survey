@@ -300,16 +300,184 @@ function submitSurvey() {
                     }))
     };
     
-    // Download as JSON
-    downloadJSON(finalData);
-    
-    // Show thank you screen
-    document.getElementById('survey-screen').classList.add('hidden');
-    document.getElementById('thankyou-screen').classList.remove('hidden');
-    document.getElementById('progress-container').classList.add('hidden');
+    // Submit to Google Drive via Apps Script
+    submitSurveyToGoogleDrive(finalData);
 }
 
-// Download responses as JSON
+// Alias for finishSurvey (called from HTML button)
+function finishSurvey() {
+    submitSurvey();
+}
+
+// Configuration for Google Apps Script
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz2IIip0uIX7DGEYPE4dRn_IziScmSX9fUJvtxPjB9dtPxNbg97ryC9BaNB7vZnvWmB5w/exec'; // Replace with your deployed script URL
+
+// Submit survey data to Google Drive via Google Apps Script
+async function submitSurveyToGoogleDrive(data) {
+    try {
+        // Show loading state
+        showLoadingState(true);
+        
+        // Check if Google Apps Script URL is configured
+        if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+            throw new Error('Backend configuration missing');
+        }
+
+        // Use JSONP to avoid CORS issues completely
+        const encodedData = encodeURIComponent(JSON.stringify(data));
+        const callbackName = 'jsonp_callback_' + Date.now();
+        
+        console.log('Attempting to submit via JSONP...', GOOGLE_APPS_SCRIPT_URL);
+        
+        return new Promise((resolve, reject) => {
+            // Create callback function
+            window[callbackName] = function(response) {
+                console.log('JSONP response received:', response);
+                // Clean up
+                if (script && script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+                delete window[callbackName];
+                
+                if (response && response.success) {
+                    console.log('Survey submitted successfully to Google Drive:', response);
+                    
+                    // Show success message
+                    showSuccessMessage('A kérdőív sikeresen elküldve!');
+                    
+                    // Clear auto-saved data since survey was successfully submitted
+                    localStorage.removeItem('qh_survey_autosave');
+                    
+                    // Show thank you screen
+                    document.getElementById('survey-screen').classList.add('hidden');
+                    document.getElementById('thankyou-screen').classList.remove('hidden');
+                    document.getElementById('progress-container').classList.add('hidden');
+                    
+                    resolve(response);
+                } else {
+                    // Google Drive mentés sikertelen, de lokális letöltést biztosítunk
+                    console.error('Google Drive mentés sikertelen:', response ? (response.error || 'Backend service returned an error') : 'Invalid response');
+                    
+                    // Hibaüzenet megjelenítése
+                    showErrorMessage('A Google Drive kapcsolat jelenleg nem elérhető. A kérdőív automatikusan letöltésre kerül biztonsági másolatként.');
+                    
+                    // Automatikus letöltés 2 másodperc után
+                    setTimeout(() => {
+                        downloadJSON(data);
+                    }, 2000);
+                    
+                    // Thank you screen megjelenítése 3 másodperc után
+                    setTimeout(() => {
+                        document.getElementById('survey-screen').classList.add('hidden');
+                        document.getElementById('thankyou-screen').classList.remove('hidden');
+                        document.getElementById('progress-container').classList.add('hidden');
+                    }, 3000);
+                    
+                    // Promise sikeresként resolve-oljuk, mert a lokális letöltés megtörtént
+                    resolve({ success: false, fallback: true });
+                }
+            };
+            
+            // Create script tag for JSONP
+            const script = document.createElement('script');
+            script.src = `${GOOGLE_APPS_SCRIPT_URL}?data=${encodedData}&callback=${callbackName}`;
+            
+            // Add timeout
+            const timeout = setTimeout(() => {
+                if (script && script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+                delete window[callbackName];
+                
+                console.error('Google Drive kapcsolat időtúllépés');
+                showErrorMessage('A Google Drive kapcsolat időtúllépés miatt sikertelen. A kérdőív automatikusan letöltésre kerül biztonsági másolatként.');
+                
+                // Automatikus letöltés időtúllépés esetén
+                setTimeout(() => {
+                    downloadJSON(data);
+                }, 2000);
+                
+                // Thank you screen megjelenítése
+                setTimeout(() => {
+                    document.getElementById('survey-screen').classList.add('hidden');
+                    document.getElementById('thankyou-screen').classList.remove('hidden');
+                    document.getElementById('progress-container').classList.add('hidden');
+                }, 3000);
+                
+                resolve({ success: false, fallback: true, reason: 'timeout' });
+            }, 30000); // 30 seconds timeout
+            
+            script.onload = function() {
+                clearTimeout(timeout);
+                // Response should be handled by the callback
+            };
+            
+            script.onerror = function() {
+                clearTimeout(timeout);
+                console.error('JSONP script failed to load:', script.src);
+                // Clean up
+                if (script && script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+                delete window[callbackName];
+                
+                showErrorMessage('A Google Drive kapcsolat jelenleg nem elérhető. A kérdőív automatikusan letöltésre kerül biztonsági másolatként.');
+                
+                // Automatikus letöltés script error esetén
+                setTimeout(() => {
+                    downloadJSON(data);
+                }, 2000);
+                
+                // Thank you screen megjelenítése
+                setTimeout(() => {
+                    document.getElementById('survey-screen').classList.add('hidden');
+                    document.getElementById('thankyou-screen').classList.remove('hidden');
+                    document.getElementById('progress-container').classList.add('hidden');
+                }, 3000);
+                
+                resolve({ success: false, fallback: true, reason: 'script_error' });
+            };
+            
+            // Add script to page
+            console.log('Loading JSONP script:', script.src);
+            document.head.appendChild(script);
+        });
+        
+    } catch (error) {
+        console.error('Error submitting survey to Google Drive:', error);
+        
+        // Fallback error handling for configuration issues
+        const errorMessage = error.message || 'Unknown error';
+        if (errorMessage.includes('Backend configuration missing')) {
+            showErrorMessage('A Google Drive kapcsolat nincs beállítva. A kérdőív automatikusan letöltésre kerül biztonsági másolatként.');
+        } else {
+            showErrorMessage('Hiba történt a kérdőív mentése során. A rendszer automatikusan letölti a válaszait biztonsági másolatként.');
+        }
+        
+        // Fallback: automatically download the data
+        setTimeout(() => {
+            downloadJSON(data);
+        }, 2000);
+        
+        // Show thank you screen even if upload failed
+        setTimeout(() => {
+            document.getElementById('survey-screen').classList.add('hidden');
+            document.getElementById('thankyou-screen').classList.remove('hidden');
+            document.getElementById('progress-container').classList.add('hidden');
+        }, 3000);
+    } finally {
+        showLoadingState(false);
+    }
+}
+
+// Show welcome screen
+function showWelcome() {
+    if (confirm('Biztosan megszakítja a kitöltést? A válaszai elvesznek.')) {
+        location.reload();
+    }
+}
+
+// Keep the original download function as fallback
 function downloadJSON(data) {
     const dataStr = JSON.stringify(data, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -324,11 +492,76 @@ function downloadJSON(data) {
     URL.revokeObjectURL(url);
 }
 
-// Show welcome screen
-function showWelcome() {
-    if (confirm('Biztosan megszakítja a kitöltést? A válaszai elvesznek.')) {
-        location.reload();
+// Show loading state during submission
+function showLoadingState(isLoading) {
+    const submitBtn = document.querySelector('button[onclick="finishSurvey()"]');
+    if (submitBtn) {
+        if (isLoading) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Küldés...';
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Kérdőív befejezése';
+        }
     }
+}
+
+// Show success message
+function showSuccessMessage(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
+    messageDiv.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            ${message}
+        </div>
+    `;
+    document.body.appendChild(messageDiv);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 5000);
+}
+
+// Show error message
+function showErrorMessage(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 max-w-md';
+    messageDiv.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <span>${message}</span>
+            <button onclick="this.parentNode.parentNode.remove()" class="ml-2 text-red-500 hover:text-red-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    document.body.appendChild(messageDiv);
+}
+
+// Fallback download option when GitHub submission fails
+function offerDownloadFallback(data) {
+    // Automatically download as fallback
+    downloadJSON(data);
+    showSuccessMessage('Válaszai letöltésre kerültek biztonsági másolatként.');
+}
+
+// Keep the original download function as fallback
+function downloadJSON(data) {
+    const dataStr = JSON.stringify(data, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `quadruple_helix_survey_${metadata.category}_${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
 // Auto-save functionality (to localStorage)
