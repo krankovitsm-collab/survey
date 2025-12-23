@@ -310,7 +310,7 @@ function finishSurvey() {
 }
 
 // Configuration for Google Apps Script
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz2IIip0uIX7DGEYPE4dRn_IziScmSX9fUJvtxPjB9dtPxNbg97ryC9BaNB7vZnvWmB5w/exec'; // Replace with your deployed script URL
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqX_HNQFKXmbMMxv0y_V8rhe1Hz7jNjQDQ1VUvjhr6xlaLsxYjTN8Xf9GGKfPkxqUm_Q/exec'; // Replace with your deployed script URL
 
 // Submit survey data to Google Drive via Google Apps Script
 async function submitSurveyToGoogleDrive(data) {
