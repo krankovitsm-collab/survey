@@ -46,6 +46,23 @@
         .sector-government { background-color: #dcfce7; color: #166534; }
         .sector-society { background-color: #fce7f3; color: #9f1239; }
         .sector-qh { background-color: #e9d5ff; color: #6b21a8; }
+        
+        /* Loading and notification styles */
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
@@ -162,6 +179,7 @@
                         <li><i class="fas fa-check text-green-500 mr-2"></i>GDPR megfelelő adatkezelés</li>
                         <li><i class="fas fa-check text-green-500 mr-2"></i>Lehetőség anonim részvételre</li>
                         <li><i class="fas fa-check text-green-500 mr-2"></i>Bármikor megszakítható</li>
+                        <li><i class="fas fa-save text-blue-500 mr-2"></i>Válaszok automatikusan mentésre kerülnek</li>
                     </ul>
                 </div>
             </div>
@@ -193,9 +211,9 @@
                         <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                     
-                    <button onclick="submitSurvey()" id="submit-btn" class="hidden bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-300">
+                    <button onclick="finishSurvey()" id="submit-btn" class="hidden bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
                         <i class="fas fa-check mr-2"></i>
-                        Beküldés
+                        Kérdőív befejezése
                     </button>
                 </div>
             </div>
@@ -210,10 +228,10 @@
                     <p class="text-lg text-gray-600 mb-6">
                         Válaszai sikeresen rögzítésre kerültek. Hozzájárulása értékes segítséget nyújt az innovációs ökoszisztéma megértéséhez.
                     </p>
-                    <div class="bg-indigo-50 rounded-lg p-6 mb-6">
-                        <p class="text-sm text-indigo-900">
-                            <i class="fas fa-download mr-2"></i>
-                            Válaszai JSON formátumban letöltésre kerültek az Ön számítógépére.
+                    <div class="bg-green-50 rounded-lg p-6 mb-6">
+                        <p class="text-sm text-green-900">
+                            <i class="fas fa-save mr-2"></i>
+                            Válaszai biztonságosan mentésre kerültek JSON formátumban.
                         </p>
                     </div>
                     <button onclick="location.reload()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300">
